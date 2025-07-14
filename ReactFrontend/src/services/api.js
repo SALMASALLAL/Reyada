@@ -152,4 +152,75 @@ export const authAPI = {
   }
 }
 
+// Create a separate axios instance for Bitrix API calls
+const bitrixApi = axios.create({
+  baseURL: 'http://localhost:8000/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+
+// Add request interceptor to bitrixApi for auth token
+bitrixApi.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('access_token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
+
+// Add response interceptor to bitrixApi for token refresh
+bitrixApi.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+
+      try {
+        const refreshToken = localStorage.getItem('refresh_token')
+        if (refreshToken) {
+          const response = await axios.post('http://localhost:8000/api/auth/token/refresh/', {
+            refresh: refreshToken
+          })
+          
+          const { access } = response.data
+          localStorage.setItem('access_token', access)
+          
+          // Retry the original request with new token
+          originalRequest.headers.Authorization = `Bearer ${access}`
+          return bitrixApi(originalRequest)
+        }
+      } catch (refreshError) {
+        // Refresh failed, logout user
+        localStorage.removeItem('access_token')
+        localStorage.removeItem('refresh_token')
+        localStorage.removeItem('user')
+        window.location.href = '/login'
+        toast.error('Session expired. Please login again.')
+      }
+    }
+
+    return Promise.reject(error)
+  }
+)
+
+// Bitrix API calls
+export const bitrixAPI = {
+  getContacts: async () => {
+    try {
+      const response = await bitrixApi.get('/bitrix-contacts/')
+      return response.data
+    } catch (error) {
+      throw error.response?.data || { message: 'Failed to fetch Bitrix contacts' }
+    }
+  }
+}
+
 export default api

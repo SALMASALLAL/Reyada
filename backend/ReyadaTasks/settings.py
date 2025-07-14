@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_yasg',
     'user',
+    'bitrix',
 ]
 
 MIDDLEWARE = [
@@ -185,6 +186,8 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # React development server
     "http://127.0.0.1:3000",  # Alternative localhost
+    "http://localhost:5173",  # Vite development server
+    "http://127.0.0.1:5173",  # Alternative localhost for Vite
     "http://localhost:5500",  # Live Server or local development
     "http://127.0.0.1:5500",  # Alternative localhost
 ]

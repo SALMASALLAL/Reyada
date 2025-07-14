@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
+import BitrixContactsPage from './pages/BitrixContactsPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import Navbar from './components/Navbar'
 
@@ -23,6 +24,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <ProfilePage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/bitrix-contacts" 
+                element={
+                  <ProtectedRoute>
+                    <BitrixContactsPage />
                   </ProtectedRoute>
                 } 
               />
