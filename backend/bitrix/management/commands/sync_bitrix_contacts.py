@@ -24,10 +24,12 @@ class Command(BaseCommand):
         verbose = options['verbose']
 
         # Bitrix24 API URL
-        api_url = "https://b24-0r8mng.bitrix24.com/rest/17/bjw88pw8gqome9fy/crm.contact.list.json"
+        api_url = "https://b24-0r8mng.bitrix24.com/rest/1/iolappou7w3kdu2w/crm.contact.list.json"
+        
+        # API parameters
         params = {
-            'FILTER[>DATE_CREATE]': '2019-01-01',
-            'SELECT[]': ['NAME', 'LAST_NAME', 'EMAIL']
+            'select': ['NAME', 'LAST_NAME', 'EMAIL', 'PHONE'],
+            'order': {'LAST_NAME': 'ASC'}
         }
 
         try:
@@ -62,6 +64,7 @@ class Command(BaseCommand):
                     name = contact_data.get('NAME', '').strip()
                     last_name = contact_data.get('LAST_NAME', '').strip()
                     email_list = contact_data.get('EMAIL', [])
+                    phone_list = contact_data.get('PHONE', [])
                     
                     # Skip contacts without email
                     if not email_list or not isinstance(email_list, list):
@@ -79,6 +82,11 @@ class Command(BaseCommand):
                             self.stdout.write(f'Skipping contact without valid email: {name} {last_name}')
                         continue
                     
+                    # Use the first phone number
+                    phone = ''
+                    if phone_list and isinstance(phone_list, list) and phone_list:
+                        phone = phone_list[0].get('VALUE', '').strip()
+                    
                     if dry_run:
                         if verbose:
                             self.stdout.write(f'[DRY RUN] Would process: {name} {last_name} ({email})')
@@ -90,6 +98,7 @@ class Command(BaseCommand):
                         defaults={
                             'name': name,
                             'last_name': last_name,
+                            'phone': phone,
                         }
                     )
                     
@@ -105,6 +114,9 @@ class Command(BaseCommand):
                             updated = True
                         if contact.last_name != last_name:
                             contact.last_name = last_name
+                            updated = True
+                        if contact.phone != phone:
+                            contact.phone = phone
                             updated = True
                         
                         if updated:

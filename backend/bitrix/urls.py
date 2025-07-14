@@ -1,6 +1,10 @@
-from django.urls import path
-from .views import BitrixContactListView
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import BitrixContactViewSet
+
+router = DefaultRouter()
+router.register(r'bitrix-contacts', BitrixContactViewSet, basename='bitrix-contacts')
 
 urlpatterns = [
-    path('bitrix-contacts/', BitrixContactListView.as_view(), name='bitrix-contacts-list'),
+    path('', include(router.urls)),
 ]

@@ -220,6 +220,15 @@ export const bitrixAPI = {
     } catch (error) {
       throw error.response?.data || { message: 'Failed to fetch Bitrix contacts' }
     }
+  },
+
+  createContact: async (contactData) => {
+    try {
+      const response = await bitrixApi.post('/bitrix-contacts/', contactData)
+      return response.data
+    } catch (error) {
+      throw error.response?.data || { message: 'Failed to create contact' }
+    }
   }
 }
 
