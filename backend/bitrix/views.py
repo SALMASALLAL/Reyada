@@ -35,7 +35,9 @@ class BitrixContactViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
     
     # Bitrix24 API configuration
-    BITRIX_BASE_URL = "https://b24-0r8mng.bitrix24.com/rest/1/iolappou7w3kdu2w"
+    @property
+    def bitrix_base_url(self):
+        return getattr(settings, 'BITRIX24_BASE_URL', 'https://b24-0r8mng.bitrix24.com/rest/1/iolappou7w3kdu2w')
 
     @swagger_auto_schema(
         operation_summary="List all Bitrix contacts",
@@ -128,7 +130,7 @@ class BitrixContactViewSet(viewsets.ModelViewSet):
         """
         Sync contact to Bitrix24 CRM using crm.contact.add API
         """
-        api_url = f"{self.BITRIX_BASE_URL}/crm.contact.add.json"
+        api_url = f"{self.bitrix_base_url}/crm.contact.add.json"
         
         # Prepare data in Bitrix24 format
         fields = {

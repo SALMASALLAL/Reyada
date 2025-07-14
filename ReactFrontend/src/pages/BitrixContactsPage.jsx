@@ -173,6 +173,9 @@ const BitrixContactsPage = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">{contact.email}</div>
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{contact.phone || 'No phone'}</div>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {formatDate(contact.created_at)}
                       </td>
@@ -203,6 +206,9 @@ const BitrixContactsPage = () => {
                       {contact.full_name || 'No name'}
                     </h3>
                     <p className="text-sm text-gray-600 truncate">{contact.email}</p>
+                    {contact.phone && (
+                      <p className="text-sm text-gray-600 truncate">{contact.phone}</p>
+                    )}
                     <div className="mt-2 text-xs text-gray-500">
                       <p>Added: {formatDate(contact.created_at)}</p>
                       <p>Updated: {formatDate(contact.updated_at)}</p>

@@ -217,3 +217,9 @@ CORS_ALLOW_METHODS = [
     'POST',
     'PUT',
 ]
+
+# Bitrix24 API Configuration
+BITRIX24_DOMAIN = os.getenv('BITRIX24_DOMAIN', 'b24-0r8mng.bitrix24.com')
+BITRIX24_USER_ID = os.getenv('BITRIX24_USER_ID', '1')
+BITRIX24_TOKEN = os.getenv('BITRIX24_TOKEN', 'iolappou7w3kdu2w')
+BITRIX24_BASE_URL = f"https://{BITRIX24_DOMAIN}/rest/{BITRIX24_USER_ID}/{BITRIX24_TOKEN}"

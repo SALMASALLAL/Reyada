@@ -1,6 +1,7 @@
 import requests
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.conf import settings
 from bitrix.models import BitrixContact
 
 
@@ -23,8 +24,9 @@ class Command(BaseCommand):
         dry_run = options['dry_run']
         verbose = options['verbose']
 
-        # Bitrix24 API URL
-        api_url = "https://b24-0r8mng.bitrix24.com/rest/1/iolappou7w3kdu2w/crm.contact.list.json"
+        # Bitrix24 API URL from settings
+        bitrix_base_url = getattr(settings, 'BITRIX24_BASE_URL', 'https://b24-0r8mng.bitrix24.com/rest/1/iolappou7w3kdu2w')
+        api_url = f"{bitrix_base_url}/crm.contact.list.json"
         
         # API parameters
         params = {
