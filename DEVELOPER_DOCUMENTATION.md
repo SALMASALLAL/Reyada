@@ -9,7 +9,9 @@
 - 👤 User registration, login, and profile management
 - 📷 Profile image upload functionality  
 - 🔗 Bitrix24 CRM integration for contact sync
-- 📱 Responsive design with Tailwind CSS
+- � Sales orders/deals management with payment processing
+- 📋 Automated task creation for completed deals
+- �📱 Responsive design with Tailwind CSS
 - 🛡️ Protected routes and API security
 - 📝 Form validation on frontend and backend
 - 🔄 Management commands for data synchronization
@@ -78,6 +80,7 @@ ReyadaTasks/
 │       │   ├── LoginPage.jsx         # User login page
 │       │   ├── RegisterPage.jsx      # User registration page
 │       │   ├── ProfilePage.jsx       # User profile management
+│       │   ├── SalesOrders.jsx       # Sales orders/deals management
 │       │   └── BitrixContactsPage.jsx # Bitrix contacts list & management
 │       ├── context/                  # React Context providers
 │       │   └── AuthContext.jsx       # Authentication state management
@@ -210,6 +213,21 @@ ReyadaTasks/
   - `handleContactCreated()` - Refresh contacts after creation
   - `formatDate()` - Date formatting
 
+**SalesOrders.jsx:**
+- Sales orders/deals management interface
+- Displays deals in "Waiting for Payment" stage
+- Create new sales orders with comprehensive form
+- Mark deals as paid with automated processing
+- Components:
+  - `DealCard` - Individual deal display component
+  - `CreateSalesOrderModal` - Sales order creation form
+- Functions:
+  - `fetchDeals()` - Fetch deals from Bitrix24 API
+  - `handleMarkAsPaid()` - Process payment and create tasks
+  - `handleCreateSalesOrder()` - Open creation modal
+  - `formatCurrency()` - Currency formatting utility
+  - `formatDate()` - Date formatting utility
+
 #### Context (`src/context/`)
 
 **AuthContext.jsx:**
@@ -237,6 +255,11 @@ ReyadaTasks/
   - `authAPI.changePassword()` - Change password
   - `bitrixAPI.getContacts()` - Get Bitrix contacts
   - `bitrixAPI.createContact()` - Create Bitrix contact
+  - `bitrixAPI.getDeals()` - Get Bitrix deals by stage
+  - `bitrixAPI.createDeal()` - Create new sales order/deal
+  - `bitrixAPI.updateDeal()` - Update deal information
+  - `bitrixAPI.markDealAsPaid()` - Mark deal as won/paid
+  - `bitrixAPI.createTask()` - Create task linked to deal
 
 ---
 
@@ -282,6 +305,7 @@ ReyadaTasks/
 | `/register` | `RegisterPage` | User registration form | No |
 | `/profile` | `ProfilePage` | User profile management | Yes |
 | `/bitrix-contacts` | `BitrixContactsPage` | Bitrix contacts list | Yes |
+| `/sales-orders` | `SalesOrders` | Sales orders/deals management | Yes |
 
 ---
 
@@ -329,6 +353,63 @@ ReyadaTasks/
    - Creates/updates local BitrixContact records
    - Handles duplicate detection by email
    - Supports dry-run mode for testing
+
+### Sales Orders Page Integration
+
+A custom page `SalesOrders.jsx` was created to manage deals in the "Waiting for the Payment" stage, providing comprehensive sales order management functionality.
+
+#### ✅ Features:
+1. **Deal Fetching:**
+   - Fetches all Bitrix24 Deals where `STAGE_ID = UC_3MCI1C` (Waiting for Payment)
+   - Uses direct Bitrix24 REST API calls bypassing Django backend
+   - Displays deals in responsive card format
+
+2. **Deal Display:**
+   - Each deal is shown as a card including:
+     - Title and Deal ID
+     - Opportunity amount with currency formatting
+     - Creation and modification dates
+     - Current stage status indicator
+
+3. **Sales Order Creation:**
+   - Modal form for creating new sales orders/deals
+   - Form fields include:
+     - Title (required)
+     - Amount and Currency selection
+     - Tax Registration 
+     - Contract status 
+     - Paid checkbox 
+
+4. **Payment Processing:**
+   - When user marks a deal as "Paid":
+     - Deal's `STAGE_ID` is updated to `WON` (Deal Won) using `crm.deal.update`
+     - A new task is automatically created via `task.item.add.json` with:
+       - Title: same as the deal title
+       - Responsible user: predefined ID (17)
+       - Linked to the deal using `UF_CRM_TASK: ["D_<dealId>"]`
+       - Includes tax registration and contract values
+
+#### ✅ Technical Implementation:
+- **API Integration:** Direct calls to Bitrix24 REST API endpoints
+- **Environment Configuration:** All API URLs stored in `.env` with VITE prefixes
+- **Error Handling:** Comprehensive error handling with toast notifications
+- **State Management:** Loading states and real-time UI updates
+- **Responsive Design:** Tailwind CSS for mobile-friendly interface
+
+#### ✅ Result:
+- All paid deals are automatically moved to "Deal Won" stage
+- Tasks are created and visible in:
+  - Tasks and Projects → My Tasks
+  - Deal timeline in CRM
+  - Linked CRM entities
+
+#### ✅ Configuration Notes:
+- Custom fields `UF_CRM_TAX` and `UF_CRM_CONTRACT` must be added in Bitrix24 settings
+- Environment variables required:
+  - `VITE_BITRIX_BASE_URL` - Bitrix24 domain REST endpoint
+  - `VITE_BITRIX_USER_ID` - User ID for API calls
+  - `VITE_BITRIX_WEBHOOK` - Webhook token for authentication
+  - `VITE_BITRIX_ADD_TASK_LEGACY` - Legacy task creation endpoint
 
 ### Data Validation
 1. **Frontend Validation:**
