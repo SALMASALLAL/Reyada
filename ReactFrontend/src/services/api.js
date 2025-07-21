@@ -259,7 +259,7 @@ export const bitrixAPI = {
       const response = await bitrix24DirectApi.post('/tasks.task.add', {
         fields: {
           TITLE: taskData.title,
-          UF_CRM_TASK: taskData.dealId,
+          UF_CRM_TASK: [`D_${taskData.dealId}`],
           UF_CRM_TAX: taskData.taxRegistration,
           UF_CRM_CONTRACT: taskData.contract ? 'Y' : 'N',
           RESPONSIBLE_ID: 1, // Default responsible user
@@ -289,6 +289,32 @@ export const bitrixAPI = {
       return await bitrixAPI.updateDeal(dealId, { STAGE_ID: 'WON' })
     } catch (error) {
       throw error.response?.data || { message: 'Failed to mark deal as paid' }
+    }
+  },
+
+  createDeal: async (dealData) => {
+    try {
+      // Determine stage based on paid status
+      const stageId = dealData.paid ? 'WON' : 'UC_3MCI1C'
+      
+      const response = await bitrix24DirectApi.post('/crm.deal.add', {
+        fields: {
+          TITLE: dealData.title,
+          STAGE_ID: stageId, // 'WON' if paid, otherwise 'UC_3MCI1C' (Waiting for payment)
+          OPPORTUNITY: dealData.amount,
+          CURRENCY_ID: dealData.currency || 'USD',
+          RESPONSIBLE_ID: dealData.responsibleId || 1, // Default responsible user
+          CONTACT_ID: dealData.contactId || null, // Optional contact
+          COMPANY_ID: dealData.companyId || null, // Optional company
+          CATEGORY_ID: dealData.categoryId || 0, // Default category
+          UF_CRM_TAX: dealData.taxRegistration || '', // Custom field for tax registration
+          UF_CRM_CONTRACT: dealData.contract ? 'Y' : 'N', // Custom field for contract status
+          COMMENTS: dealData.comments || `Sales order created: ${dealData.title}`
+        }
+      })
+      return response.data
+    } catch (error) {
+      throw error.response?.data || { message: 'Failed to create deal' }
     }
   }
 }
