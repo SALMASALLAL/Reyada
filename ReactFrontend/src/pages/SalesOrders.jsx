@@ -17,9 +17,8 @@ const CreateSalesOrderModal = ({ isOpen, onClose, onOrderCreated }) => {
   const currencyOptions = [
     { value: 'USD', label: 'USD - US Dollar' },
     { value: 'EUR', label: 'EUR - Euro' },
-    { value: 'GBP', label: 'GBP - British Pound' },
-    { value: 'SAR', label: 'SAR - Saudi Riyal' },
-    { value: 'AED', label: 'AED - UAE Dirham' }
+    { value: 'SAR', label: 'SAR - Saudi Riyal' }
+    
   ]
 
   const handleChange = (e) => {
