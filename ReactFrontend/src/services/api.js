@@ -256,14 +256,15 @@ export const bitrixAPI = {
 
   createTask: async (taskData) => {
     try {
-      const response = await bitrix24DirectApi.post('/tasks.task.add', {
-        fields: {
+      // Use legacy API endpoint from environment variable
+      const legacyApiUrl = import.meta.env.VITE_BITRIX_ADD_TASK_LEGACY
+      
+      const response = await axios.post(legacyApiUrl, {
+        TASKDATA: {
           TITLE: taskData.title,
+          RESPONSIBLE_ID: 17,
           UF_CRM_TASK: [`D_${taskData.dealId}`],
-          UF_CRM_TAX: taskData.taxRegistration,
-          UF_CRM_CONTRACT: taskData.contract ? 'Y' : 'N',
-          RESPONSIBLE_ID: 1, // Default responsible user
-          DESCRIPTION: `Task created for deal: ${taskData.dealId}`
+          DESCRIPTION: taskData.description || `Task created for deal: ${taskData.dealId}`
         }
       })
       return response.data.result || {}
