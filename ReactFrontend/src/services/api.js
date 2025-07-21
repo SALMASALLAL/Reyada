@@ -211,6 +211,14 @@ bitrixApi.interceptors.response.use(
   }
 )
 
+// Create a direct axios instance for Bitrix24 API calls (bypassing Django backend)
+const bitrix24DirectApi = axios.create({
+  baseURL: 'https://b24-0r8mng.bitrix24.com/rest/1/iolappou7w3kdu2w',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+
 // Bitrix API calls
 export const bitrixAPI = {
   getContacts: async () => {
@@ -228,6 +236,59 @@ export const bitrixAPI = {
       return response.data
     } catch (error) {
       throw error.response?.data || { message: 'Failed to create contact' }
+    }
+  },
+
+  // Sales Orders / Deals API
+  getDeals: async (stageId = 'UC_3MCI1C') => {
+    try {
+      const response = await bitrix24DirectApi.get('/crm.deal.list', {
+        params: {
+          'filter[STAGE_ID]': stageId,
+          'select': ['ID', 'TITLE', 'STAGE_ID', 'OPPORTUNITY', 'CURRENCY_ID', 'CONTACT_ID', 'COMPANY_ID', 'DATE_CREATE', 'DATE_MODIFY']
+        }
+      })
+      return response.data.result || []
+    } catch (error) {
+      throw error.response?.data || { message: 'Failed to fetch deals' }
+    }
+  },
+
+  createTask: async (taskData) => {
+    try {
+      const response = await bitrix24DirectApi.post('/tasks.task.add', {
+        fields: {
+          TITLE: taskData.title,
+          UF_CRM_TASK: taskData.dealId,
+          UF_CRM_TAX: taskData.taxRegistration,
+          UF_CRM_CONTRACT: taskData.contract ? 'Y' : 'N',
+          RESPONSIBLE_ID: 1, // Default responsible user
+          DESCRIPTION: `Task created for deal: ${taskData.dealId}`
+        }
+      })
+      return response.data.result || {}
+    } catch (error) {
+      throw error.response?.data || { message: 'Failed to create task' }
+    }
+  },
+
+  updateDeal: async (dealId, updateData) => {
+    try {
+      const response = await bitrix24DirectApi.post('/crm.deal.update', {
+        id: dealId,
+        fields: updateData
+      })
+      return response.data.result || {}
+    } catch (error) {
+      throw error.response?.data || { message: 'Failed to update deal' }
+    }
+  },
+
+  markDealAsPaid: async (dealId) => {
+    try {
+      return await bitrixAPI.updateDeal(dealId, { STAGE_ID: 'WON' })
+    } catch (error) {
+      throw error.response?.data || { message: 'Failed to mark deal as paid' }
     }
   }
 }

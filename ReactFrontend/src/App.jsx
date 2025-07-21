@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
 import BitrixContactsPage from './pages/BitrixContactsPage'
+import SalesOrders from './pages/SalesOrders'
 import ProtectedRoute from './components/ProtectedRoute'
 import Navbar from './components/Navbar'
 
@@ -32,6 +33,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <BitrixContactsPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/sales-orders" 
+                element={
+                  <ProtectedRoute>
+                    <SalesOrders />
                   </ProtectedRoute>
                 } 
               />

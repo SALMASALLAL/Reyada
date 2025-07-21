@@ -36,6 +36,12 @@ const Navbar = () => {
                 >
                   Bitrix Contacts
                 </Link>
+                <Link 
+                  to="/sales-orders" 
+                  className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  Sales Orders
+                </Link>
                 <span className="text-sm text-gray-600">
                   Welcome, {user?.first_name || user?.email}
                 </span>
